@@ -44,8 +44,8 @@ function watchBoxSizeChange(el, handler){
     this.expand.appendChild(expandChild);
     this.shrink.appendChild(shrinkChild);
 
-    el.appendChild(this.expand);
-    el.appendChild(this.shrink);
+    this.el.appendChild(this.expand);
+    this.el.appendChild(this.shrink);
 
     if(this.expand.offsetParent !== el){
         el.style.position = 'relative';
@@ -54,7 +54,8 @@ function watchBoxSizeChange(el, handler){
     this.expand.scrollTop = this.shrink.scrollTop = this.maxHeight;
     this.expand.scrollLeft = this.shrink.scrollLeft = this.maxWidth;
 
-    this.addListener();	
+    this.bindOnScroll = null;
+    this.addListener();
 }
 
 watchBoxSizeChange.prototype.onScroll = function onScroll(){
@@ -74,13 +75,20 @@ watchBoxSizeChange.prototype.onResize = function onResize(){
 }
 
 watchBoxSizeChange.prototype.addListener = function addListener(){
-    this.expand.addEventListener('scroll', this.onScroll.bind(this), false)
-    this.shrink.addEventListener('scroll', this.onScroll.bind(this), false)
+    this.bindOnScroll = this.onScroll.bind(this);
+    this.expand.addEventListener('scroll', this.bindOnScroll, false)
+    this.shrink.addEventListener('scroll', this.bindOnScroll, false)
 }
 
 watchBoxSizeChange.prototype.removeListener = function removeListener(){
-    this.expand.removeEventListener('scroll', this.onScroll, false)
-    this.shrink.removeEventListener('scroll', this.onScroll, false)
+    this.expand.removeEventListener('scroll', this.bindOnScroll, false)
+    this.shrink.removeEventListener('scroll', this.bindOnScroll, false)
+}
+
+watchBoxSizeChange.prototype.destroy = function destroy(){
+    this.removeListener();
+    this.el.removeChild(this.expand);
+    this.el.removeChild(this.shrink);
 }
 
 export default watchBoxSizeChange;
